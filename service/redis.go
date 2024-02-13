@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/kamalesh-seervi/simpleGPT/utils"
@@ -11,12 +12,23 @@ import (
 var rdb *redis.Client
 
 func InitRedis() {
-	config, _ := utils.LoadConfig()
+	config, err := utils.LoadConfig()
+	if err != nil {
+		panic("Error loading config: " + err.Error())
+	}
 	opts, err := redis.ParseURL(config.RedisURL)
 	if err != nil {
 		panic(err)
 	}
+	opts.Password = config.RedisPassword
 	rdb = redis.NewClient(opts)
+
+	if err := rdb.Ping(context.Background()).Err(); err != nil {
+		panic("Error connecting to Redis: " + err.Error())
+	}
+
+	fmt.Println("Connected to Redis")
+
 }
 
 func GetPromptFromCache(input string) (string, error) {

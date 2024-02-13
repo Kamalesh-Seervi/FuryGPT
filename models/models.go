@@ -6,3 +6,11 @@ type Config struct {
 	RedisDB       string
 	RedisURL      string
 }
+
+
+type User struct {
+    ID       uint   `json:"id"`
+    Username string `json:"username"`
+    Password string `json:"-"`
+    APIKey   string `json:"apiKey"`
+}

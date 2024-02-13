@@ -15,11 +15,13 @@
   }
   
   body {
-    background-image: linear-gradient(180deg, #fafbfbf2, #ffffff);
+    background-image:;
     background-repeat: no-repeat;
     background-size: auto 40%;
     background-attachment: fixed;
-  }
+    filter: blur(5px); /* Adjust the value to control the blur intensity */
+}
+
   
   @media screen and (min-width: 660px) {
     html {

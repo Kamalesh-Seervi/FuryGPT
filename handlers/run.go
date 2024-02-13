@@ -26,6 +26,34 @@ func init() {
 }
 
 func Run(c *gin.Context) {
+
+	user, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+		return
+	}
+	username := user.(string)
+	apiKey := c.GetHeader("X-API-Key") // Use a custom header for API key
+	if apiKey == "" {
+		// If API key is not in headers, try to get it from the request body
+		var apiKeyFromBody struct {
+			APIKey string `json:"apiKey"`
+		}
+
+		if err := c.ShouldBindJSON(&apiKeyFromBody); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "API key is missing"})
+			return
+		}
+
+		apiKey = apiKeyFromBody.APIKey
+	}
+
+	// Use the provided API key or the user's API key
+	if apiKey == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "API key is missing"})
+		return
+	}
+
 	prompt := struct {
 		Input string `json:"input"`
 	}{}
@@ -60,17 +88,19 @@ func Run(c *gin.Context) {
 	defer client.Close()
 
 	//  gemini promodel
-
 	model := client.GenerativeModel("gemini-pro")
 	resp, err := model.GenerateContent(ctx, genai.Text(prompt.Input))
 	if err != nil {
+		log.Printf("Error generating content: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	formattedContent := formatResponse(resp)
+
 	// Save the prompt and response in the cache
 	err = service.SetPromptInCache(prompt.Input, formattedContent)
 	if err != nil {
+		log.Printf("Error generating cache: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -82,10 +112,12 @@ func Run(c *gin.Context) {
 
 func formatResponse(resp *genai.GenerateContentResponse) string {
 	var formattedContent strings.Builder
-	for _, cand := range resp.Candidates {
-		if cand.Content != nil {
-			for _, part := range cand.Content.Parts {
-				formattedContent.WriteString(fmt.Sprintf("%v", part))
+	if resp != nil && resp.Candidates != nil {
+		for _, cand := range resp.Candidates {
+			if cand.Content != nil {
+				for _, part := range cand.Content.Parts {
+					formattedContent.WriteString(fmt.Sprintf("%v", part))
+				}
 			}
 		}
 	}
