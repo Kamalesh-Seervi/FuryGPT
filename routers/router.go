@@ -2,14 +2,22 @@ package routers
 
 import (
 	"log"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
+	"github.com/kamalesh-seervi/simpleGPT/handlers"
 )
 
-func main() {
+func Router() {
 	router := gin.Default()
-	router.GET("/", index)
-	router.POST("/run", run)
+	router.Use(gin.Logger())
+
+	staticPath := "static"
+	router.Static("/static", staticPath)
+	templatesPath := filepath.Join(staticPath, "*.html")
+	router.LoadHTMLGlob(templatesPath)
+	router.GET("/", handlers.Index)
+	router.POST("/run", handlers.Run)
 	log.Println("\033[93mFuryAI started. Press CTRL+C to quit.\033[0m")
 	router.Run()
 }

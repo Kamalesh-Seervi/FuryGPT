@@ -1,18 +1,11 @@
 package main
 
 import (
-	"github.com/spf13/viper"
+	"github.com/kamalesh-seervi/simpleGPT/routers"
+	"github.com/kamalesh-seervi/simpleGPT/service"
 )
 
 func main() {
-	loadConfig()
-}
-
-func loadConfig() {
-	viper.SetConfigFile("config.yml")
-
-	err := viper.ReadInConfig()
-	if err != nil {
-		panic(err)
-	}
+	service.InitRedis()
+	routers.Router()
 }
