@@ -1,4 +1,0 @@
-API_KEY: "AIzaSyDUSgrwjlnExPxxed2dse9n7V7mSGLRx6k"
-REDIS_PASSWORD: "OmYERgWuKymd0NGfEpXGCLtdvjG8KRI6"
-REDIS_DB: "FuryGPT"
-REDIS_URL: "redis://redis-12145.c309.us-east-2-1.ec2.cloud.redislabs.com:12145"
