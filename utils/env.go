@@ -16,6 +16,7 @@ func LoadConfig() (models.Config, error) {
 		RedisPassword: viper.GetString("REDIS_PASSWORD"),
 		RedisDB:       viper.GetString("REDIS_DB"),
 		RedisURL:      viper.GetString("REDIS_URL"),
+		SecretKey:     viper.GetString("SECRET_KEY"),
 	}
 
 	return config, nil

@@ -9,7 +9,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/generative-ai-go/genai"
-	"github.com/kamalesh-seervi/simpleGPT/service"
 	"github.com/kamalesh-seervi/simpleGPT/utils"
 	"google.golang.org/api/option"
 )
@@ -27,61 +26,22 @@ func init() {
 
 func Run(c *gin.Context) {
 
-	// user, exists := c.Get("user")
-	// if !exists {
-	// 	c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-	// 	return
-	// }
-	// username := user.(string)
-	// apiKey := c.GetHeader("X-API-Key") // Use a custom header for API key
-	// if apiKey == "" {
-	// 	// If API key is not in headers, try to get it from the request body
-	// 	var apiKeyFromBody struct {
-	// 		APIKey string `json:"apiKey"`
-	// 	}
-
-	// 	if err := c.ShouldBindJSON(&apiKeyFromBody); err != nil {
-	// 		c.JSON(http.StatusBadRequest, gin.H{"error": "API key is missing"})
-	// 		return
-	// 	}
-
-	// 	apiKey = apiKeyFromBody.APIKey
-	// }
-
-	// // Use the provided API key or the user's API key
-	// if apiKey == "" {
-	// 	c.JSON(http.StatusUnauthorized, gin.H{"error": "API key is missing"})
-	// 	return
-	// }
-
 	prompt := struct {
-		Input string `json:"input"`
+		Input  string `json:"input"`
+		APIKey string `json:"apiKey"`
 	}{}
 
-	// Decode JSON from the client
 	err := c.BindJSON(&prompt)
 	if err != nil {
+		log.Printf("Error processing request: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Check if the prompt is already in the cache
-	response, err := service.GetPromptFromCache(prompt.Input)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	if response != "" {
-		// If prompt is found in the cache, return the cached response
-		c.JSON(http.StatusOK, gin.H{"input": prompt.Input, "response": response})
-		return
-	}
-
-	// Create the genai client using Viper to get the API key
 	ctx := context.Background()
-	client, err := genai.NewClient(ctx, option.WithAPIKey(apiKey))
+	client, err := genai.NewClient(ctx, option.WithAPIKey(prompt.APIKey))
 	if err != nil {
+		log.Printf("Error processing request: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -96,14 +56,6 @@ func Run(c *gin.Context) {
 		return
 	}
 	formattedContent := formatResponse(resp)
-
-	// Save the prompt and response in the cache
-	err = service.SetPromptInCache(prompt.Input, formattedContent)
-	if err != nil {
-		log.Printf("Error generating cache: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
 
 	c.JSON(http.StatusOK, gin.H{"input": prompt.Input, "response": formattedContent})
 }

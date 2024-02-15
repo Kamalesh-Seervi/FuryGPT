@@ -15,11 +15,11 @@
   }
   
   body {
-    background-image:"share.png";
+    background-image:url(/static/logo-black.svg);
     background-repeat: no-repeat;
     background-size: auto 40%;
     background-attachment: fixed;
-    filter: blur(5px); /* Adjust the value to control the blur intensity */
+    /* filter: blur(5px); Adjust the value to control the blur intensity */
 }
 
   
@@ -30,14 +30,18 @@
   }
   
   .logo {
-    --logo-h: 10.625rem;
+    /* --logo-h: 10.625rem;
     position: absolute;
     width: auto;
     top: 45%;
     left: 50%;
-    transition: all 0.4s ease;
-    transform: translate(-50%, -50%);
-    height: var(--logo-h);
+    transition: all 0.4s ease; */
+    background-image: url(/static/logo-black.svg);
+    background-repeat: no-repeat;
+    background-size: auto 40%;
+    background-attachment: fixed;
+    /* transform: translate(-50%, -50%);
+    height: var(--logo-h); */
   }
   
   .logo.active {

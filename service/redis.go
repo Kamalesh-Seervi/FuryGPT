@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/kamalesh-seervi/simpleGPT/utils"
 	"github.com/redis/go-redis/v9"
@@ -31,19 +30,6 @@ func InitRedis() {
 
 }
 
-func GetPromptFromCache(input string) (string, error) {
-	ctx := context.Background()
-	response, err := rdb.Get(ctx, input).Result()
-	if err == redis.Nil {
-		// Key not found in cache
-		return "", nil
-	} else if err != nil {
-		return "", err
-	}
-	return response, nil
-}
-
-func SetPromptInCache(input, response string) error {
-	ctx := context.Background()
-	return rdb.Set(ctx, input, response, time.Hour).Err()
-}
+// func GetUserSessionKey(userID string) string {
+// 	return "user:" + userID
+// }

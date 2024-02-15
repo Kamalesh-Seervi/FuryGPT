@@ -3,12 +3,18 @@ t = 0;
 let resp = "";
 var converter = new showdown.Converter();
 $(document).ready(function(){  
+    var storedApiKey = localStorage.getItem("apiKey");
+    if (storedApiKey) {
+        $("#apiKey").val(storedApiKey);
+    }
     $('#send').click(function(e){
         e.preventDefault();
         var prompt = $("#prompt").val().trimEnd();
+        var apiKey = $("#apiKey").val().trim();
         $("#prompt").val("");
+        // $("#apiKey").val("");
         autosize.update($("#prompt"));
-
+        localStorage.setItem("apiKey", apiKey);
         $("#printout").append(
             "<div class='prompt-message'>" + 
             "<div style='white-space: pre-wrap;'>" +
@@ -18,7 +24,7 @@ $(document).ready(function(){
             "</div>"             
         );        
         window.scrollTo({top: document.body.scrollHeight, behavior:'smooth' });
-        run(prompt);
+        run(prompt, apiKey);
         $(".js-logo").addClass("active");
     });     
     $('#prompt').keypress(function(event){        
@@ -31,7 +37,7 @@ $(document).ready(function(){
     autosize($('#prompt'));    
 });  
 
-function run(prompt, action="/run") {
+function run(prompt, apiKey, action = "/run") {
     function myTimer() {
         t++;
     }
@@ -40,7 +46,7 @@ function run(prompt, action="/run") {
     $.ajax({
         url: action,
         method:"POST",
-        data: JSON.stringify({input: prompt}),
+        data: JSON.stringify({ input: prompt, apiKey: apiKey }),
         contentType:"application/json; charset=utf-8",
         dataType:"json",
         success: function(data){  
