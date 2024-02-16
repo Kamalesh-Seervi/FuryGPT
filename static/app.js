@@ -1,4 +1,4 @@
-
+let promptHistory = [];
 t = 0;
 let resp = "";
 var converter = new showdown.Converter();
@@ -15,6 +15,7 @@ $(document).ready(function(){
         // $("#apiKey").val("");
         autosize.update($("#prompt"));
         localStorage.setItem("apiKey", apiKey);
+        promptHistory.push({ input: prompt });
         $("#printout").append(
             "<div class='prompt-message'>" + 
             "<div style='white-space: pre-wrap;'>" +
@@ -22,7 +23,7 @@ $(document).ready(function(){
             "</div>" +
             "<span class='message-loader js-loading spinner-border'></span>" +
             "</div>"             
-        );        
+        );      
         window.scrollTo({top: document.body.scrollHeight, behavior:'smooth' });
         run(prompt, apiKey);
         $(".js-logo").addClass("active");
@@ -45,36 +46,73 @@ function run(prompt, apiKey, action = "/run") {
     
     $.ajax({
         url: action,
-        method:"POST",
+        method: "POST",
         data: JSON.stringify({ input: prompt, apiKey: apiKey }),
-        contentType:"application/json; charset=utf-8",
-        dataType:"json",
-        success: function(data){  
-            $("#printout").append(
-                "<div class='px-3 py-3'>" + 
-                "<div style='white-space: pre-wrap;'>" + 
-                converter.makeHtml(data.response) + 
-                "</div>" +
-                " <small class='timer'>(" + t + "s)</small> " + 
-                "</div>" 
-            );           
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (data) {
+            console.log("Successfully fetched history:", data);
+            promptHistory = data.history;
+    
+            if (data.error) {
+                console.error("Error:", data.error);
+                // Handle error if needed
+            } else {
+                // Process successful response
+                $("#printout").append(
+                    "<div class='px-3 py-3'>" +
+                    "<div style='white-space: pre-wrap;'>" +
+                    converter.makeHtml(data.response) +
+                    "</div>" +
+                    " <small class='timer'>(" + t + "s)</small> " +
+                    "</div>"
+                );
+            }
+
+            try {
+                var jsonData = JSON.parse(data);
+                // Rest of your code
+            } catch (e) {
+                console.error("Error parsing JSON:", e);
+            }
+    
+            fetchAndDisplayHistory(apiKey);
         },
-        error: function(data) {
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.error("Error:", jqXHR.status, textStatus, errorThrown);
             $("#printout").append(
-                "<div class='text-danger response-message'>" + 
-                "<div style='white-space: pre-wrap;'>" + 
-                "There is a problem answering your question. Please check the command line output." + 
+                "<div class='text-danger response-message'>" +
+                "<div style='white-space: pre-wrap;'>" +
+                "There is a problem answering your question. Please check the command line output." +
                 "</div>" +
-                " <small class='timer'>(" + t + "s)</small> " + 
-                "</div>" 
-            );              
+                " <small class='timer'>(" + t + "s)</small> " +
+                "</div>"
+            );
         },
-        complete: function(data) {
+        complete: function (data) {
             clearInterval(myInterval);
             t = 0;
-            $(".js-loading").removeClass("spinner-border");                   
-            window.scrollTo({top: document.body.scrollHeight, behavior:'smooth' });
-            hljs.highlightAll();                 
+            $(".js-loading").removeClass("spinner-border");
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            hljs.highlightAll();
         }
-    });   
+    }); 
+}
+
+function fetchAndDisplayHistory(apiKey) {
+    $.ajax({
+        url: "/run",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({
+            apiKey: apiKey,
+        }),
+        success: function (response) {
+            promptHistory = response.history;
+            displayChatHistory();
+        },
+        error: function (error) {
+            console.error("Error fetching chat history:", error);
+        },
+    });
 }

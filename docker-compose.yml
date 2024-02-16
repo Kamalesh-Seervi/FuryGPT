@@ -24,3 +24,17 @@ services:
     restart: always
     ports:
       - 9000:8080
+
+  redis:
+    image: redis
+    restart: always
+    ports:
+      - 6379:6379
+    environment:
+      REDIS_PASSWORD: "DBZHYBLZbdSzACgThrHAHCnqUb4wx2xg"
+      REDIS_DB: "furycache"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:

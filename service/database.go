@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/kamalesh-seervi/simpleGPT/models"
-	"gorm.io/driver/postgres"
+	"gorm.io/driver/postgres" 
 	"gorm.io/gorm"
 )
 

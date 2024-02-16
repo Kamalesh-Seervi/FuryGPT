@@ -9,20 +9,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/generative-ai-go/genai"
-	"github.com/kamalesh-seervi/simpleGPT/utils"
+	"github.com/kamalesh-seervi/simpleGPT/service"
 	"google.golang.org/api/option"
 )
-
-var apiKey string
-
-func init() {
-	config, err := utils.LoadConfig()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	apiKey = config.APIKey
-}
 
 func Run(c *gin.Context) {
 
@@ -37,7 +26,7 @@ func Run(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
+	// adding apiKey in Gemini
 	ctx := context.Background()
 	client, err := genai.NewClient(ctx, option.WithAPIKey(prompt.APIKey))
 	if err != nil {
@@ -55,13 +44,21 @@ func Run(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	formattedContent := formatResponse(resp)
 
-	c.JSON(http.StatusOK, gin.H{"input": prompt.Input, "response": formattedContent})
+	formattedContent := formatResponse(resp)
+	// c.JSON(http.StatusOK, gin.H{"input": prompt.Input, "response": formattedContent})
+
+	// I am storing both the input prompt and the generated response in Redis
+	service.StoreHistory(prompt.APIKey, prompt.Input, formattedContent)
+	history := service.GetHistory(prompt.APIKey)
+	c.JSON(http.StatusOK, gin.H{
+		"input":    prompt.Input,
+		"response": formattedContent,
+		"history":  history,
+	})
 }
 
 // format resposne
-
 func formatResponse(resp *genai.GenerateContentResponse) string {
 	var formattedContent strings.Builder
 	if resp != nil && resp.Candidates != nil {
