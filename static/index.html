@@ -50,6 +50,10 @@
       <div class="border printout-wrapper border-0">
         <div id="printout" class="printout"></div>
       </div>
+      <!-- <div id="history-container">
+        <h2>History</h2>
+        <ul id="history-list"></ul>
+      </div> -->
 
       <div class="position-sticky bottom-0 mt-auto bg-white">
         <div class="main-controls">
@@ -83,6 +87,78 @@
         </div>
       </div>
     </div>
+    <!-- <script>
+      // Function to fetch and display user history
+      function fetchAndDisplayHistory(apiKey) {
+        $.ajax({
+          url: "/run", // Replace with your actual history endpoint
+          method: "POST",
+          data: { apiKey: apiKey },
+          success: function(response) {
+            // Update the UI with the history
+            displayHistory(response.history);
+          },
+          error: function(error) {
+            console.error("Error:", error);
+            // Handle error and update the UI accordingly
+          }
+        });
+      }
+  
+      // Function to display history
+      function displayHistory(history) {
+        var historyList = $("#history-list");
+        historyList.empty();
+  
+        if (history.length > 0) {
+          history.forEach(function(entry) {
+            var listItem = $("<li>").text(entry);
+            historyList.append(listItem);
+          });
+        } else {
+          historyList.append("<li>No history available.</li>");
+        }
+      }
+  
+      // Wait for the DOM to be ready
+      $(document).ready(function() {
+        // Event listener for fetching history button click
+        $("#send").click(function() {
+          // Get API key from user input
+          var apiKey = $("#apiKey").val();
+  
+          // Check if the API key is provided
+          if (apiKey) {
+            // Fetch and display history
+            fetchAndDisplayHistory(apiKey);
+          } else {
+            alert("Please enter the API key");
+          }
+        });
+  
+        // Periodically check and clear cache after 24 hours
+        setInterval(function() {
+          // Get API key from user input
+          var apiKey = $("#apiKey").val();
+  
+          // Check if the API key is provided
+          if (apiKey) {
+            $.ajax({
+              url: "/your-clear-cache-endpoint", // Replace with your actual cache-clearing endpoint
+              method: "POST",
+              data: { apiKey: apiKey },
+              success: function(response) {
+                console.log("Cache cleared successfully");
+              },
+              error: function(error) {
+                console.error("Error clearing cache:", error);
+                // Handle error if needed
+              }
+            });
+          }
+        }, 24 * 60 * 60 * 1000); // 24 hours in milliseconds
+      });
+    </script> -->
     <script src="/static/autosize.min.js"></script>
     <script src="/static/app.js"></script>
   </body>

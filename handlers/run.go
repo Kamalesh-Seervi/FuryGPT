@@ -57,6 +57,22 @@ func Run(c *gin.Context) {
 		"history":  history,
 	})
 }
+func HandleFetchHistory(c *gin.Context) {
+	prompt := struct {
+		Input  string `json:"input"`
+		APIKey string `json:"apiKey"`
+	}{} // Assuming you have a struct for the prompt data
+	if err := c.ShouldBindJSON(&prompt); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
+		return
+	}
+
+	// Fetch the history from Redis
+	history := service.GetHistory(prompt.APIKey)
+	c.JSON(http.StatusOK, gin.H{
+		"history": history,
+	})
+}
 
 // format resposne
 func formatResponse(resp *genai.GenerateContentResponse) string {
@@ -70,5 +86,6 @@ func formatResponse(resp *genai.GenerateContentResponse) string {
 			}
 		}
 	}
+
 	return formattedContent.String()
 }

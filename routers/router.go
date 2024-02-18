@@ -20,6 +20,7 @@ func Router() {
 	router.GET("/", handlers.Index)
 
 	router.POST("/run", handlers.Run)
+	router.POST("/fetchHistory", handlers.HandleFetchHistory)
 
 	log.Println("\033[93mFuryAI started. Press CTRL+C to quit.\033[0m")
 	router.Run()
