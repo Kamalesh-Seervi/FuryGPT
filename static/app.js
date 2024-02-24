@@ -109,23 +109,37 @@ function run(prompt, apiKey, action = "/run") {
 }
 let historyFetched = false;
 function fetchAndDisplayHistoryOnce(apiKey) {
-    if (!historyFetched) {
-      $.ajax({
-        url: "/fetchHistory",
-        method: "POST",
-        contentType: "application/json",
-        data: JSON.stringify({
-          apiKey: apiKey,
-        }),
-        success: function (response) {
-          console.log("Received chat history response:", response);
-  
-          // Display chat history
-          for (let i = 0; i < response.history.length; i++) {
-            const chatEntry = response.history[i];
-            if (chatEntry.input && chatEntry.response) {
-              $("#printout").append(
-                "<div class='px-3 py-3'>" +
+  if (!historyFetched) {
+    $.ajax({
+      url: "/fetchHistory",
+      method: "POST",
+      contentType: "application/json",
+      data: JSON.stringify({
+        apiKey: apiKey,
+      }),
+      success: function (response) {
+        console.log(
+          "Received chat history response:",
+          response,
+          response.history.length
+        );
+
+        // Display chat history
+        for (let i = 0; i < response.history.length; i++) {
+          let chatEntry = response.history[i];
+
+          // If converted to json, the comment this line
+          try {
+            chatEntry = JSON.parse(chatEntry);
+          } catch (error) {
+            console.log({ i });
+          }
+
+          // console.log(chatEntry);
+
+          if (chatEntry.input && chatEntry.response) {
+            $("#printout").append(
+              "<div class='px-3 py-3 prompt-message'>" +
                 "<div style='white-space: pre-wrap;'>" +
                 "<strong>Prompt:</strong> " +
                 chatEntry.input +
@@ -134,26 +148,25 @@ function fetchAndDisplayHistoryOnce(apiKey) {
                 chatEntry.response +
                 "</div>" +
                 "</div>"
-              );
-            }
+            );
           }
-  
-          // Scroll to the bottom after displaying history
-          window.scrollTo({
-            top: document.body.scrollHeight,
-            behavior: "smooth",
-          });
-  
-          // Add class to logo (if needed)
-          $(".js-logo").addClass("active");
-  
-          historyFetched = true; // Set the flag to true after fetching history
-        },
-        error: function (error) {
-          console.error("Error fetching chat history:", error);
-          historyFetched = true; // Set the flag to true even in case of an error
-        },
-      });
-    }
+        }
+
+        // Scroll to the bottom after displaying history
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: "smooth",
+        });
+
+        // Add class to logo (if needed)
+        $(".js-logo").addClass("active");
+
+        historyFetched = true; // Set the flag to true after fetching history
+      },
+      error: function (error) {
+        console.error("Error fetching chat history:", error);
+        historyFetched = true; // Set the flag to true even in case of an error
+      },
+    });
   }
-  
+}

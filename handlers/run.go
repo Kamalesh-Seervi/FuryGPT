@@ -67,7 +67,7 @@ func HandleFetchHistory(c *gin.Context) {
 		return
 	}
 
-	// Fetch the history from Redis
+	// i am fetching the history from Redis
 	history := service.GetHistory(prompt.APIKey)
 	c.JSON(http.StatusOK, gin.H{
 		"history": history,
