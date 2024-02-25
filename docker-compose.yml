@@ -8,22 +8,10 @@ services:
       - 8080:8080
     volumes:
       - .:/go
-
-  db:
-    image: postgres
-    restart: always
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: changeme
-      POSTGRES_DB: mydb
-    volumes:
-    - ./database:/var/lib/postgresql
-
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 9000:8080
+    depends_on:
+     - redis
+    networks:
+      - internal
 
   redis:
     image: redis
@@ -35,6 +23,11 @@ services:
       REDIS_DB: "furycache"
     volumes:
       - redis-data:/data
+    networks:
+    - internal
 
 volumes:
   redis-data:
+
+networks:
+  internal:

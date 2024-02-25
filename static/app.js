@@ -129,11 +129,11 @@ function fetchAndDisplayHistoryOnce(apiKey) {
           let chatEntry = response.history[i];
 
           // If converted to json, the comment this line
-          try {
-            chatEntry = JSON.parse(chatEntry);
-          } catch (error) {
-            console.log({ i });
-          }
+          // try {
+          //   chatEntry = JSON.parse(chatEntry);
+          // } catch (error) {
+          //   console.log({ i });
+          // }
 
           // console.log(chatEntry);
 

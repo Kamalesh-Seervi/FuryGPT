@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -61,16 +62,29 @@ func HandleFetchHistory(c *gin.Context) {
 	prompt := struct {
 		Input  string `json:"input"`
 		APIKey string `json:"apiKey"`
-	}{} // Assuming you have a struct for the prompt data
+	}{}
 	if err := c.ShouldBindJSON(&prompt); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request data"})
 		return
 	}
 
-	// i am fetching the history from Redis
+	// Fetch history from Redis
 	history := service.GetHistory(prompt.APIKey)
+
+	// Convert history strings to structured JSON objects
+	var historyObjects []map[string]string
+	for _, historyStr := range history {
+		var historyObject map[string]string
+		err := json.Unmarshal([]byte(historyStr), &historyObject)
+		if err != nil {
+			continue
+		}
+		historyObjects = append(historyObjects, historyObject)
+	}
+
+	// Send the structured JSON objects to the frontend
 	c.JSON(http.StatusOK, gin.H{
-		"history": history,
+		"history": historyObjects,
 	})
 }
 

@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/kamalesh-seervi/simpleGPT/utils"
 	"github.com/redis/go-redis/v9"
@@ -50,6 +51,8 @@ func StoreHistory(userID, input, response string) {
 
 	rdb.LPush(context.Background(), historyKey, entry)
 	rdb.LTrim(context.Background(), historyKey, 0, int64(maxHistoryLength-1))
+	expiration := time.Hour * 24
+	rdb.Expire(context.Background(), historyKey, expiration)
 }
 
 func GetHistory(userID string) []string {
